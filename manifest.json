@@ -1,26 +1,11 @@
 {
-  "name": "WealthOS",
-  "short_name": "WealthOS",
-  "description": "Tu copiloto financiero personal",
-  "start_url": "./index.html",
-  "scope": "./",
+  "background_color": "#171515",
+  "dir": "ltr",
   "display": "standalone",
-  "background_color": "#0a0a0f",
-  "theme_color": "#0a0a0f",
-  "orientation": "portrait",
-  "lang": "es",
-  "icons": [
-    {
-      "src": "./icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "./icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
-    }
-  ]
+  "name": "Mediahorra",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Mediahorra",
+  "start_url": "/",
+  "theme_color": "#0a0a0f"
 }
