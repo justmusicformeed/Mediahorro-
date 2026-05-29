@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WealthOS">
+<meta name="theme-color" content="#0a0a0f">
+<title>WealthOS — Tu copiloto financiero</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a26;--bg4:#222230;
+  --text:#f0f0ff;--text2:#8888aa;--text3:#333355;
+  --green:#00e5a0;--green2:#00c87a;--green-dim:rgba(0,229,160,0.12);
+  --blue:#4488ff;--blue-dim:rgba(68,136,255,0.12);
+  --amber:#ffaa00;--amber-dim:rgba(255,170,0,0.12);
+  --red:#ff5566;--red-dim:rgba(255,85,102,0.12);
+  --purple:#aa66ff;--purple-dim:rgba(170,102,255,0.12);
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);
+  --radius:10px;--radius-lg:16px;--radius-xl:22px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.app{max-width:430px;margin:0 auto;padding-bottom:80px;min-height:100vh}
+.header{padding:calc(env(safe-area-inset-top,0px)+16px) 16px 12px;background:var(--bg);border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:16px;font-weight:700;color:var(--green);letter-spacing:-0.3px}
+.score-badge{background:var(--green-dim);border:0.5px solid var(--green);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:var(--green)}
+.section{display:none;padding:12px}.section.active{display:block}
+.card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:10px}
+.card-accent{border-color:rgba(0,229,160,0.3);background:linear-gradient(135deg,rgba(0,229,160,0.06),var(--bg2))}
+.card-title{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px}
+.big-number{font-size:38px;font-weight:700;color:var(--green);letter-spacing:-1px;line-height:1}
+.big-label{font-size:12px;color:var(--text2);margin-top:5px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mini-card{background:var(--bg3);border-radius:var(--radius);padding:12px}
+.mini-label{font-size:11px;color:var(--text2);margin-bottom:3px}
+.mini-value{font-size:19px;font-weight:600}
+.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}.blue{color:var(--blue)}.purple{color:var(--purple)}
+.bar-wrap{margin-bottom:10px}
+.bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:5px;align-items:center}
+.bar-track{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.insight{background:var(--bg3);border-radius:var(--radius);padding:12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start}
+.insight-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.insight-text{font-size:12px;color:var(--text2);line-height:1.6}
+.insight-text strong{color:var(--text);font-weight:600}
+label{font-size:11px;color:var(--text2);display:block;margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px}
+input,select{width:100%;padding:11px 12px;border:0.5px solid var(--border2);border-radius:var(--radius);font-size:15px;background:var(--bg3);color:var(--text);font-family:inherit;outline:none;-webkit-appearance:none;appearance:none}
+input:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,229,160,0.1)}
+select option{background:var(--bg3)}
+.field{margin-bottom:10px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{width:100%;padding:14px;border:none;border-radius:var(--radius);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.btn:active{transform:scale(.97);opacity:.85}
+.btn-primary{background:var(--green);color:#000}
+.btn-ghost{background:var(--bg3);color:var(--text2);border:0.5px solid var(--border2);text-align:left;font-size:13px}
+.tag{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600}
+.tag-green{background:var(--green-dim);color:var(--green)}
+.tag-red{background:var(--red-dim);color:var(--red)}
+.tag-amber{background:var(--amber-dim);color:var(--amber)}
+.tag-blue{background:var(--blue-dim);color:var(--blue)}
+.tag-purple{background:var(--purple-dim);color:var(--purple)}
+.chart-wrap{position:relative;width:100%;height:160px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.slider-wrap{margin-bottom:14px}
+.slider-row{display:flex;align-items:center;gap:10px}
+.slider-row input[type=range]{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--bg3);border:none;padding:0;outline:none}
+.slider-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--green);cursor:pointer;border:2px solid var(--bg)}
+.slider-val{font-size:13px;font-weight:600;color:var(--green);min-width:52px;text-align:right}
+.slider-label{font-size:11px;color:var(--text2);margin-bottom:6px;display:flex;justify-content:space-between}
+.goal-item{background:var(--bg3);border-radius:var(--radius);padding:14px;margin-bottom:8px}
+.goal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.goal-name{font-size:14px;font-weight:600;color:var(--text)}
+.goal-sub{font-size:11px;color:var(--text2);margin-top:2px}
+.prediction-box{background:var(--bg3);border-radius:var(--radius);padding:12px;margin-bottom:8px;border-left:3px solid var(--green)}
+.pred-title{font-size:11px;color:var(--text2);margin-bottom:4px}
+.pred-value{font-size:17px;font-weight:700;color:var(--green)}
+.pred-detail{font-size:11px;color:var(--text2);margin-top:2px}
+.fire-box{background:linear-gradient(135deg,rgba(170,102,255,0.1),rgba(68,136,255,0.08));border:0.5px solid rgba(170,102,255,0.3);border-radius:var(--radius-lg);padding:16px;margin-bottom:10px}
+.fire-title{font-size:11px;color:var(--purple);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.8px}
+.chat-msgs{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;max-height:240px;overflow-y:auto}
+.msg{padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.55;max-width:88%}
+.msg-ai{background:var(--bg3);color:var(--text);align-self:flex-start;border-bottom-left-radius:4px}
+.msg-user{background:var(--green-dim);color:var(--green);align-self:flex-end;border-bottom-right-radius:4px}
+.chat-input-row{display:flex;gap:8px}
+.chat-input-row input{flex:1;font-size:13px}
+.chat-send{background:var(--green);border:none;border-radius:var(--radius);padding:0 16px;color:#000;font-size:18px;cursor:pointer;flex-shrink:0;font-weight:700}
+.divider{height:0.5px;background:var(--border);margin:12px 0}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:0.5px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,0);z-index:20}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;cursor:pointer;border:none;background:none;font-family:inherit;gap:3px;min-height:56px}
+.nav-item i{font-size:22px;color:var(--text3)}
+.nav-item span{font-size:9px;color:var(--text3);font-weight:500}
+.nav-item.active i,.nav-item.active span{color:var(--green)}
+.empty{text-align:center;color:var(--text2);font-size:13px;padding:2rem 0}
+.sheet-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:30;align-items:flex-end}
+.sheet-overlay.open{display:flex}
+.sheet{background:var(--bg2);border-radius:20px 20px 0 0;padding:0 16px calc(24px + env(safe-area-inset-bottom,0px));width:100%;max-height:88vh;overflow-y:auto;border-top:0.5px solid var(--border2)}
+.sheet-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 16px}
+.sheet-title{font-size:17px;font-weight:700;margin-bottom:16px;color:var(--text)}
+.thinking{display:flex;gap:4px;align-items:center;padding:8px 12px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.2s ease-in-out infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,80%,100%{opacity:.2}40%{opacity:1}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div>
+      <div class="logo">⚡ WealthOS</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:2px">Tu copiloto financiero</div>
+    </div>
+    <div class="score-badge" id="score-badge">Score: —</div>
+  </div>
+
+  <div class="section active" id="sec-dashboard">
+    <div class="card card-accent">
+      <div class="card-title">Ahorro disponible / mes</div>
+      <div class="big-number" id="dash-ahorro">€0</div>
+      <div class="big-label" id="dash-sub">Configura tus datos en "Mis datos" →</div>
+      <div class="divider"></div>
+      <div class="grid2">
+        <div class="mini-card"><div class="mini-label">Ingresos/mes</div><div class="mini-value green" id="dash-ing">€0</div></div>
+        <div class="mini-card"><div class="mini-label">Gastos/mes</div><div class="mini-value red" id="dash-gas">€0</div></div>
+        <div class="mini-card"><div class="mini-label">Tasa ahorro</div><div class="mini-value amber" id="dash-tasa">0%</div></div>
+        <div class="mini-card"><div class="mini-label">Libertad FIRE</div><div class="mini-value purple" id="dash-fire">—</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Proyección de patrimonio</div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-dot" style="background:#4444aa"></span>Ahorro sin invertir</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#00e5a0"></span>Con inversión</span>
+      </div>
+      <div class="chart-wrap"><canvas id="chartProyeccion" role="img" aria-label="Proyección patrimonio">Gráfico de proyección.</canvas></div>
+    </div>
+    <div id="insights-box"></div>
+    <div class="card">
+      <div class="card-title">Progreso hacia metas</div>
+      <div id="dash-goals-mini"></div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-config">
+    <div class="card">
+      <div class="card-title">Ingresos y gastos</div>
+      <div class="field"><label>Ingresos netos / mes (€)</label><input type="number" id="cfg-ing" placeholder="2500" min="0" inputmode="decimal"></div>
+      <div class="field"><label>Gastos fijos / mes (€)</label><input type="number" id="cfg-gas-fijos" placeholder="1200" min="0" inputmode="decimal"></div>
+      <div class="field"><label>Gastos variables / mes (€)</label><input type="number" id="cfg-gas-var" placeholder="600" min="0" inputmode="decimal"></div>
+      <div class="field"><label>Ahorro acumulado actual (€)</label><input type="number" id="cfg-ahorro-act" placeholder="5000" min="0" inputmode="decimal"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">¿En qué gastas tus variables?</div>
+      <div class="slider-wrap">
+        <div class="slider-label"><span>🍽️ Comida y restaurantes</span><span id="sl-comida-val">30%</span></div>
+        <input type="range" min="0" max="100" value="30" id="sl-comida" oninput="updateSliders()">
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-label"><span>🎬 Ocio y entretenimiento</span><span id="sl-ocio-val">25%</span></div>
+        <input type="range" min="0" max="100" value="25" id="sl-ocio" oninput="updateSliders()">
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-label"><span>🛍️ Compras y ropa</span><span id="sl-compras-val">20%</span></div>
+        <input type="range" min="0" max="100" value="20" id="sl-compras" oninput="updateSliders()">
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-label"><span>📱 Suscripciones</span><span id="sl-subs-val">15%</span></div>
+        <input type="range" min="0" max="100" value="15" id="sl-subs" oninput="updateSliders()">
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-label"><span>🚗 Transporte</span><span id="sl-trans-val">10%</span></div>
+        <input type="range" min="0" max="100" value="10" id="sl-trans" oninput="updateSliders()">
+      </div>
+      <div style="background:var(--bg3);border-radius:var(--radius);padding:10px;font-size:12px;color:var(--text2)">Total variables: <span id="slider-total" style="font-weight:700;color:var(--text)">100%</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Perfil financiero</div>
+      <div class="field"><label>Edad actual</label><input type="number" id="cfg-edad" placeholder="30" min="18" max="80" inputmode="numeric"></div>
+      <div class="field"><label>Objetivo FIRE (edad)</label><input type="number" id="cfg-fire" placeholder="55" min="30" max="80" inputmode="numeric"></div>
+      <div class="field"><label>Perfil de inversión</label>
+        <select id="cfg-riesgo">
+          <option value="conservador">Conservador — 2% anual</option>
+          <option value="moderado" selected>Moderado — 6% anual</option>
+          <option value="agresivo">Agresivo — 10% anual</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="calcular()">⚡ Calcular mi plan financiero</button>
+  </div>
+
+  <div class="section" id="sec-simulador">
+    <div class="card">
+      <div class="card-title">Simulador — ¿Qué pasa si reduzco...?</div>
+      <div class="slider-wrap">
+        <div class="slider-label"><span>🎬 Ocio</span><span id="sim-ocio-val">0%</span></div>
+        <div class="slider-row"><input type="range" min="0" max="100" value="0" step="5" id="sim-ocio" oninput="simular()"><span class="slider-val" id="sim-ocio-eur">-€0</span></div>
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-label"><span>🍽️ Restaurantes</span><span id="sim-rest-val">0%</span></div>
+        <div class="slider-row"><input type="range" min="0" max="100" value="0" step="5" id="sim-rest" oninput="simular()"><span class="slider-val" id="sim-rest-eur">-€0</span></div>
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-label"><span>📱 Suscripciones</span><span id="sim-subs-val">0%</span></div>
+        <div class="slider-row"><input type="range" min="0" max="100" value="0" step="5" id="sim-subs" oninput="simular()"><span class="slider-val" id="sim-subs-eur">-€0</span></div>
+      </div>
+      <div class="slider-wrap">
+        <div class="slider-label"><span>🛍️ Compras</span><span id="sim-comp-val">0%</span></div>
+        <div class="slider-row"><input type="range" min="0" max="100" value="0" step="5" id="sim-comp" oninput="simular()"><span class="slider-val" id="sim-comp-eur">-€0</span></div>
+      </div>
+    </div>
+    <div id="sim-results"></div>
+    <div class="card">
+      <div class="card-title">Proyección comparada</div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-dot" style="background:#4444aa;opacity:.6"></span>Situación actual</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#00e5a0"></span>Con cambios</span>
+      </div>
+      <div class="chart-wrap"><canvas id="chartSim" role="img" aria-label="Comparación escenarios">Gráfico.</canvas></div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-metas">
+    <button class="btn btn-primary" onclick="openGoalSheet()" style="margin-bottom:10px">+ Nueva meta</button>
+    <div id="goals-list"></div>
+    <div class="fire-box" id="fire-box" style="display:none">
+      <div class="fire-title">🔥 Simulación FIRE — Independencia financiera</div>
+      <div id="fire-content"></div>
+    </div>
+  </div>
+
+  <div class="section" id="sec-coach">
+    <div class="card">
+      <div class="card-title">Coach financiero IA</div>
+      <div class="chat-msgs" id="chat-msgs">
+        <div class="msg msg-ai">👋 Hola. Soy tu coach financiero. Configura tus datos primero y podré darte análisis completamente personalizados sobre tu situación real.</div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Pregúntame algo..." onkeydown="if(event.key==='Enter')sendMsg()">
+        <button class="chat-send" onclick="sendMsg()">↑</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Preguntas rápidas</div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="btn btn-ghost" onclick="quickQ('¿Cuánto tiempo tardaré en alcanzar mi meta principal?')">⏱ ¿Cuánto tardaré en mi meta principal?</button>
+        <button class="btn btn-ghost" onclick="quickQ('¿Cómo puedo aumentar mi tasa de ahorro?')">📈 ¿Cómo aumentar mi tasa de ahorro?</button>
+        <button class="btn btn-ghost" onclick="quickQ('Analiza mis gastos y dime dónde estoy perdiendo dinero')">🔍 Analiza mis fugas de dinero</button>
+        <button class="btn btn-ghost" onclick="quickQ('¿Cuándo podré alcanzar la independencia financiera?')">🔥 ¿Cuándo seré financieramente libre?</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="showSection('dashboard',this)"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></button>
+  <button class="nav-item" onclick="showSection('config',this)"><i class="ti ti-settings"></i><span>Mis datos</span></button>
+  <button class="nav-item" onclick="showSection('simulador',this)"><i class="ti ti-adjustments"></i><span>Simular</span></button>
+  <button class="nav-item" onclick="showSection('metas',this)"><i class="ti ti-target"></i><span>Metas</span></button>
+  <button class="nav-item" onclick="showSection('coach',this)"><i class="ti ti-robot"></i><span>Coach IA</span></button>
+</nav>
+
+<div class="sheet-overlay" id="goal-sheet">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Nueva meta financiera</div>
+    <div class="field"><label>Nombre</label><input type="text" id="g-name" placeholder="Casa, coche, viaje, jubilación..."></div>
+    <div class="field"><label>Objetivo (€)</label><input type="number" id="g-target" placeholder="50000" inputmode="decimal"></div>
+    <div class="field"><label>Ya ahorrado (€)</label><input type="number" id="g-saved" placeholder="0" inputmode="decimal"></div>
+    <div class="field"><label>Prioridad</label>
+      <select id="g-priority">
+        <option value="alta">Alta — prioritaria</option>
+        <option value="media" selected>Media — ahorro regular</option>
+        <option value="baja">Baja — cuando sobre</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="addGoal()" style="margin-top:6px">Añadir meta</button>
+    <button class="btn btn-ghost" onclick="closeGoalSheet()" style="margin-top:8px;text-align:center">Cancelar</button>
+  </div>
+</div>
+
+<script>
+const SK='wealthos_v1';
+let S={ing:0,gasFijos:0,gasVar:0,ahorroAct:0,edad:30,edadFire:55,riesgo:'moderado',goals:[],sliders:{comida:30,ocio:25,compras:20,subs:15,trans:10},calculado:false};
+let chartProy=null,chartSim=null;
+
+function load(){try{const d=localStorage.getItem(SK);if(d){const p=JSON.parse(d);S={...S,...p};populateConfig();}}catch(e){}}
+function save(){try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}}
+function populateConfig(){
+  if(S.ing)document.getElementById('cfg-ing').value=S.ing;
+  if(S.gasFijos)document.getElementById('cfg-gas-fijos').value=S.gasFijos;
+  if(S.gasVar)document.getElementById('cfg-gas-var').value=S.gasVar;
+  if(S.ahorroAct)document.getElementById('cfg-ahorro-act').value=S.ahorroAct;
+  if(S.edad)document.getElementById('cfg-edad').value=S.edad;
+  if(S.edadFire)document.getElementById('cfg-fire').value=S.edadFire;
+  document.getElementById('cfg-riesgo').value=S.riesgo;
+  document.getElementById('sl-comida').value=S.sliders.comida;
+  document.getElementById('sl-ocio').value=S.sliders.ocio;
+  document.getElementById('sl-compras').value=S.sliders.compras;
+  document.getElementById('sl-subs').value=S.sliders.subs;
+  document.getElementById('sl-trans').value=S.sliders.trans;
+  updateSliders();
+}
+function updateSliders(){
+  const ids=['comida','ocio','compras','subs','trans'];
+  let total=0;
+  ids.forEach(id=>{const v=parseInt(document.getElementById('sl-'+id).value);document.getElementById('sl-'+id+'-val').textContent=v+'%';total+=v;});
+  document.getElementById('slider-total').textContent=total+'%';
+  document.getElementById('slider-total').style.color=total===100?'var(--green)':total>100?'var(--red)':'var(--amber)';
+  S.sliders={comida:parseInt(document.getElementById('sl-comida').value),ocio:parseInt(document.getElementById('sl-ocio').value),compras:parseInt(document.getElementById('sl-compras').value),subs:parseInt(document.getElementById('sl-subs').value),trans:parseInt(document.getElementById('sl-trans').value)};
+}
+function showSection(id,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(id==='dashboard'&&S.calculado)renderDashboard();
+  if(id==='simulador')simular();
+  if(id==='metas')renderMetas();
+}
+function getRate(){return S.riesgo==='conservador'?0.02:S.riesgo==='agresivo'?0.10:0.06;}
+function calcular(){
+  S.ing=parseFloat(document.getElementById('cfg-ing').value)||0;
+  S.gasFijos=parseFloat(document.getElementById('cfg-gas-fijos').value)||0;
+  S.gasVar=parseFloat(document.getElementById('cfg-gas-var').value)||0;
+  S.ahorroAct=parseFloat(document.getElementById('cfg-ahorro-act').value)||0;
+  S.edad=parseInt(document.getElementById('cfg-edad').value)||30;
+  S.edadFire=parseInt(document.getElementById('cfg-fire').value)||55;
+  S.riesgo=document.getElementById('cfg-riesgo').value;
+  if(!S.ing){alert('Introduce tus ingresos mensuales para continuar.');return;}
+  S.calculado=true;save();
+  const nav=document.querySelector('.nav-item');
+  showSection('dashboard',nav);nav.classList.add('active');
+  renderDashboard();
+}
+function ahorroPosible(){return Math.max(0,S.ing-S.gasFijos-S.gasVar);}
+function proyectar(ini,men,años,tasa){let t=ini;const r=tasa/12;for(let i=0;i<años*12;i++){t=t*(1+r)+men;}return t;}
+function proyeccionAnual(ini,men,años,tasa){const d=[];let a=ini;const r=tasa/12;for(let y=0;y<=años;y++){d.push(Math.round(a));for(let m=0;m<12;m++){a=a*(1+r)+men;}}return d;}
+function añosParaFire(ahorro,obj){if(ahorro<=0)return 99;let acc=S.ahorroAct;const r=getRate()/12;for(let m=0;m<600;m++){acc=acc*(1+r)+ahorro;if(acc>=obj)return Math.ceil(m/12);}return 99;}
+function calcScore(tasa){if(tasa>=30)return'A+';if(tasa>=20)return'A';if(tasa>=15)return'B+';if(tasa>=10)return'B';if(tasa>=5)return'C';return'D';}
+function renderDashboard(){
+  const ap=ahorroPosible();const gasTotal=S.gasFijos+S.gasVar;
+  const tasa=S.ing>0?Math.round(ap/S.ing*100):0;
+  document.getElementById('dash-ahorro').textContent='€'+ap.toFixed(0);
+  document.getElementById('dash-ing').textContent='€'+S.ing.toFixed(0);
+  document.getElementById('dash-gas').textContent='€'+gasTotal.toFixed(0);
+  document.getElementById('dash-tasa').textContent=tasa+'%';
+  document.getElementById('score-badge').textContent='Score: '+calcScore(tasa);
+  const añosFire=S.edadFire-S.edad;const necesario=gasTotal*12*25;
+  const proyFire=proyectar(S.ahorroAct,ap,añosFire,getRate());
+  document.getElementById('dash-fire').textContent=proyFire>=necesario?'✓ '+S.edadFire+'a':'~'+(S.edad+añosParaFire(ap,necesario))+'a';
+  document.getElementById('dash-sub').textContent=tasa>=20?'Excelente ritmo — sigue así':'Tasa '+tasa+'% — puedes mejorarla';
+  renderProyeccionChart();renderInsights(ap,tasa,gasTotal);renderDashGoals(ap);
+}
+function renderProyeccionChart(){
+  const ap=ahorroPosible();const años=Math.max(10,S.edadFire-S.edad);
+  const base=proyeccionAnual(S.ahorroAct,ap,años,0);
+  const inv=proyeccionAnual(S.ahorroAct,ap,años,getRate());
+  const labels=Array.from({length:años+1},(_,i)=>(S.edad+i)+'a');
+  if(chartProy)chartProy.destroy();
+  chartProy=new Chart(document.getElementById('chartProyeccion'),{type:'line',data:{labels,datasets:[{label:'Base',data:base,borderColor:'#4444aa',backgroundColor:'rgba(68,68,170,0.08)',tension:.4,pointRadius:0,fill:true},{label:'Inv',data:inv,borderColor:'#00e5a0',backgroundColor:'rgba(0,229,160,0.08)',tension:.4,pointRadius:0,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{size:10},color:'#8888aa',maxTicksLimit:6}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{callback:v=>v>=1000000?'€'+(v/1000000).toFixed(1)+'M':v>=1000?'€'+(v/1000).toFixed(0)+'k':'€'+v,font:{size:10},color:'#8888aa'}}}}});
+}
+function renderInsights(ap,tasa,gasTotal){
+  const items=[];
+  if(tasa<10)items.push({i:'⚠️',t:`Tu tasa de ahorro es <strong>${tasa}%</strong>. Lo recomendable es al menos 20%. Tienes margen real de mejora.`});
+  else if(tasa>=20)items.push({i:'✅',t:`Tasa de ahorro del <strong>${tasa}%</strong>. Por encima de la media. Mantén el ritmo.`});
+  const ocioE=Math.round(S.gasVar*(S.sliders.ocio/100));
+  const subsE=Math.round(S.gasVar*(S.sliders.subs/100));
+  if(ocioE>ap*0.5)items.push({i:'🎬',t:`Gastas <strong>€${ocioE}/mes</strong> en ocio. Reducirlo un 30% añadiría <strong>€${Math.round(ocioE*0.3)}/mes</strong> extra de ahorro.`});
+  if(subsE>50)items.push({i:'📱',t:`Suscripciones: <strong>€${subsE}/mes</strong> — €${subsE*12}/año. ¿Cuáles usas realmente?`});
+  const en5=proyectar(S.ahorroAct,ap,5,getRate());
+  items.push({i:'📈',t:`En <strong>5 años</strong> podrías acumular <strong>€${Math.round(en5).toLocaleString('es')}</strong> invirtiendo al ${Math.round(getRate()*100)}% anual.`});
+  document.getElementById('insights-box').innerHTML=items.map(x=>`<div class="insight"><div class="insight-icon">${x.i}</div><div class="insight-text">${x.t}</div></div>`).join('');
+}
+function renderDashGoals(ap){
+  const el=document.getElementById('dash-goals-mini');
+  if(!S.goals.length){el.innerHTML='<p class="empty" style="padding:1rem 0;font-size:12px">Sin metas — ve a la pestaña Metas</p>';return;}
+  el.innerHTML=S.goals.map(g=>{
+    const pct=Math.min(100,Math.round(g.saved/g.target*100));
+    const m=ap>0?Math.ceil((g.target-g.saved)/ap):9999;
+    const color=pct>=75?'var(--green)':pct>=40?'var(--amber)':'var(--blue)';
+    return`<div class="bar-wrap"><div class="bar-label"><span>${g.name}</span><span class="tag ${pct>=100?'tag-green':m<24?'tag-amber':'tag-blue'}">${pct>=100?'✓':m<9999?m+' meses':'—'}</span></div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div></div>`;
+  }).join('');
+}
+function simular(){
+  const ap=ahorroPosible();
+  const ocioB=S.gasVar*(S.sliders.ocio/100);const restB=S.gasVar*(S.sliders.comida/100);
+  const subsB=S.gasVar*(S.sliders.subs/100);const compB=S.gasVar*(S.sliders.compras/100);
+  const rO=parseInt(document.getElementById('sim-ocio')?.value||0)/100;
+  const rR=parseInt(document.getElementById('sim-rest')?.value||0)/100;
+  const rS=parseInt(document.getElementById('sim-subs')?.value||0)/100;
+  const rC=parseInt(document.getElementById('sim-comp')?.value||0)/100;
+  document.getElementById('sim-ocio-val').textContent=Math.round(rO*100)+'%';
+  document.getElementById('sim-rest-val').textContent=Math.round(rR*100)+'%';
+  document.getElementById('sim-subs-val').textContent=Math.round(rS*100)+'%';
+  document.getElementById('sim-comp-val').textContent=Math.round(rC*100)+'%';
+  const aO=Math.round(ocioB*rO),aR=Math.round(restB*rR),aS=Math.round(subsB*rS),aC=Math.round(compB*rC);
+  document.getElementById('sim-ocio-eur').textContent='-€'+aO;
+  document.getElementById('sim-rest-eur').textContent='-€'+aR;
+  document.getElementById('sim-subs-eur').textContent='-€'+aS;
+  document.getElementById('sim-comp-eur').textContent='-€'+aC;
+  const extra=aO+aR+aS+aC;const apN=ap+extra;
+  const a10=Math.round(proyectar(S.ahorroAct,ap,10,getRate()));
+  const n10=Math.round(proyectar(S.ahorroAct,apN,10,getRate()));
+  const difM=ap>0&&apN>ap&&S.goals.length?Math.round((S.goals[0].target-S.goals[0].saved)/ap)-Math.round((S.goals[0].target-S.goals[0].saved)/apN):0;
+  const res=document.getElementById('sim-results');
+  if(extra>0){
+    res.innerHTML=`
+      <div class="prediction-box"><div class="pred-title">Ahorro mensual adicional</div><div class="pred-value">+€${extra}/mes</div><div class="pred-detail">+€${extra*12}/año extra</div></div>
+      <div class="prediction-box" style="border-left-color:var(--blue)"><div class="pred-title">Patrimonio en 10 años</div><div class="pred-value" style="color:var(--blue)">€${n10.toLocaleString('es')}</div><div class="pred-detail">vs €${a10.toLocaleString('es')} actual → <strong style="color:var(--green)">+€${(n10-a10).toLocaleString('es')}</strong></div></div>
+      ${difM>0?`<div class="prediction-box" style="border-left-color:var(--amber)"><div class="pred-title">Meta "${S.goals[0].name}"</div><div class="pred-value" style="color:var(--amber)">${difM} meses antes</div><div class="pred-detail">Alcanzarías tu meta principal antes</div></div>`:''}
+    `;
+  } else {
+    res.innerHTML=`<div class="insight"><div class="insight-icon">👆</div><div class="insight-text">Mueve los sliders para ver el impacto de reducir ciertos gastos en tu futuro financiero.</div></div>`;
+  }
+  renderSimChart(ap,apN,Math.max(10,S.edadFire-S.edad));
+}
+function renderSimChart(apA,apN,años){
+  const base=proyeccionAnual(S.ahorroAct,apA,Math.min(años,15),0);
+  const nuevo=proyeccionAnual(S.ahorroAct,apN,Math.min(años,15),getRate());
+  const labels=Array.from({length:Math.min(años,15)+1},(_,i)=>(S.edad+i)+'a');
+  const el=document.getElementById('chartSim');if(!el)return;
+  if(chartSim)chartSim.destroy();
+  chartSim=new Chart(el,{type:'line',data:{labels,datasets:[{label:'Actual',data:base,borderColor:'rgba(68,68,170,0.6)',backgroundColor:'rgba(68,68,170,0.05)',tension:.4,pointRadius:0,fill:true,borderDash:[4,4]},{label:'Cambios',data:nuevo,borderColor:'#00e5a0',backgroundColor:'rgba(0,229,160,0.08)',tension:.4,pointRadius:0,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{size:10},color:'#8888aa',maxTicksLimit:8}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{callback:v=>v>=1000000?'€'+(v/1000000).toFixed(1)+'M':v>=1000?'€'+(v/1000).toFixed(0)+'k':'€'+v,font:{size:10},color:'#8888aa'}}}}});
+}
+function renderMetas(){
+  const ap=ahorroPosible();const el=document.getElementById('goals-list');
+  if(!S.goals.length){el.innerHTML='<p class="empty">Sin metas. Pulsa "+ Nueva meta".</p>';}
+  else{
+    el.innerHTML=S.goals.map((g,i)=>{
+      const pct=Math.min(100,Math.round(g.saved/g.target*100));
+      const faltan=Math.max(0,g.target-g.saved);
+      const m=ap>0?Math.ceil(faltan/ap):9999;
+      const color=pct>=75?'var(--green)':pct>=40?'var(--amber)':'var(--blue)';
+      const fecha=m<9999?new Date(Date.now()+m*30*24*3600*1000).toLocaleDateString('es',{month:'short',year:'numeric'}):'—';
+      return`<div class="goal-item">
+        <div class="goal-header">
+          <div><div class="goal-name">${g.name}</div><div class="goal-sub">€${g.saved.toLocaleString('es')} de €${g.target.toLocaleString('es')}</div></div>
+          <div style="text-align:right"><div class="tag ${pct>=100?'tag-green':m<24?'tag-amber':'tag-blue'}">${pct>=100?'✓ Lista':m<9999?m+' meses':'—'}</div><div style="font-size:10px;color:var(--text2);margin-top:3px">${pct>=100?'Completada':'≈ '+fecha}</div></div>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:var(--text2)">
+          <span>${pct}% completado</span><span>Faltan €${faltan.toLocaleString('es')}</span>
+          <button onclick="deleteGoal(${i})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:11px;font-family:inherit;padding:0">Eliminar</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  if(S.calculado){
+    const gasTotal=S.gasFijos+S.gasVar;const necesario=gasTotal*12*25;
+    const añosFire=S.edadFire-S.edad;const ap=ahorroPosible();
+    const proy=proyectar(S.ahorroAct,ap,añosFire,getRate());
+    document.getElementById('fire-box').style.display='block';
+    document.getElementById('fire-content').innerHTML=`
+      <div class="grid2" style="gap:8px;margin-bottom:10px">
+        <div style="background:var(--bg3);border-radius:var(--radius);padding:10px"><div style="font-size:10px;color:var(--text2)">Capital necesario (regla 4%)</div><div style="font-size:15px;font-weight:700;color:var(--text);margin-top:3px">€${Math.round(necesario).toLocaleString('es')}</div></div>
+        <div style="background:var(--bg3);border-radius:var(--radius);padding:10px"><div style="font-size:10px;color:var(--text2)">Tu proyección a ${S.edadFire}a</div><div style="font-size:15px;font-weight:700;margin-top:3px;color:${proy>=necesario?'var(--green)':'var(--amber)'}">€${Math.round(proy).toLocaleString('es')}</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.6">${proy>=necesario?`✅ Con tu ritmo actual alcanzarás la independencia financiera a los <strong style="color:var(--green)">${S.edadFire} años</strong>. Sigue así.`:`⚠️ Te faltan <strong style="color:var(--amber)">€${Math.round(necesario-proy).toLocaleString('es')}</strong> para FIRE a los ${S.edadFire}a. Usa el simulador para ver qué cambios te acercan más.`}</div>
+    `;
+  }
+}
+function openGoalSheet(){document.getElementById('goal-sheet').classList.add('open');}
+function closeGoalSheet(){document.getElementById('goal-sheet').classList.remove('open');}
+function addGoal(){
+  const name=document.getElementById('g-name').value.trim();
+  const target=parseFloat(document.getElementById('g-target').value);
+  const saved=parseFloat(document.getElementById('g-saved').value)||0;
+  if(!name||!target)return;
+  S.goals.push({name,target,saved,priority:document.getElementById('g-priority').value});
+  save();closeGoalSheet();renderMetas();
+  document.getElementById('g-name').value='';document.getElementById('g-target').value='';document.getElementById('g-saved').value='';
+}
+function deleteGoal(i){S.goals.splice(i,1);save();renderMetas();}
+document.getElementById('goal-sheet').addEventListener('click',function(e){if(e.target===this)closeGoalSheet();});
+
+const RESP=[
+  {k:['tasa','ahorro','aumento','mejorar'],r:s=>`Tu tasa de ahorro actual es ${s.ing>0?Math.round(ahorroPosible()/s.ing*100):0}%. Para mejorarla, el mayor margen está en ocio (€${Math.round(s.gasVar*(s.sliders.ocio/100))}/mes) y suscripciones (€${Math.round(s.gasVar*(s.sliders.subs/100))}/mes). Reducir ambos un 30% añadiría €${Math.round(s.gasVar*(s.sliders.ocio+s.sliders.subs)/100*0.3)}/mes al ahorro.`},
+  {k:['meta','tardar','tiempo','cuándo'],r:s=>{const ap=ahorroPosible();if(!s.goals.length)return'Añade primero una meta en la pestaña Metas.';const g=s.goals[0];const m=ap>0?Math.ceil((g.target-g.saved)/ap):9999;return m<9999?`Para "${g.name}" te faltan €${Math.round(g.target-g.saved).toLocaleString('es')}. Con €${Math.round(ap)}/mes de ahorro lo lograrás en ${m} meses (${Math.ceil(m/12)} años).`:'Configura tus ingresos y gastos primero.';}},
+  {k:['fire','libertad','independencia','jubil'],r:s=>{const ap=ahorroPosible();const gasT=s.gasFijos+s.gasVar;const nec=gasT*12*25;const años=s.edadFire-s.edad;const p=proyectar(s.ahorroAct,ap,años,getRate());return`Para FIRE necesitas €${Math.round(nec).toLocaleString('es')} (regla del 4%). A tu ritmo actual proyectarías €${Math.round(p).toLocaleString('es')} a los ${s.edadFire} años. ${p>=nec?'Lo conseguirás a ese ritmo.':'Te faltan €'+Math.round(nec-p).toLocaleString('es')+'. Prueba el simulador para acelerar.'}`}},
+  {k:['fuga','pierd','malgast','gasto'],r:s=>{const items=[];if(s.gasVar*(s.sliders.ocio/100)>200)items.push(`ocio (€${Math.round(s.gasVar*(s.sliders.ocio/100))}/mes)`);if(s.gasVar*(s.sliders.subs/100)>80)items.push(`suscripciones (€${Math.round(s.gasVar*(s.sliders.subs/100))}/mes)`);if(s.gasVar*(s.sliders.comida/100)>300)items.push(`restaurantes (€${Math.round(s.gasVar*(s.sliders.comida/100))}/mes)`);return items.length?`Tus principales fugas son: ${items.join(', ')}. Usa el simulador para ver el impacto de reducirlas.`:'Tus gastos parecen razonables. Ajusta los sliders en "Mis datos" para afinar el análisis.';}},
+  {k:[''],r:s=>`Con tus datos: ahorras €${Math.round(ahorroPosible())}/mes, tasa del ${s.ing>0?Math.round(ahorroPosible()/s.ing*100):0}%. ${s.goals.length?'Meta más cercana: "'+s.goals[0].name+'".':'Añade metas para ver proyecciones personalizadas.'}`}
+];
+function getAIResponse(msg){
+  if(!S.calculado)return'Configura primero tus ingresos y gastos en "Mis datos" para análisis personalizados.';
+  const lower=msg.toLowerCase();
+  for(const r of RESP){if(r.k.some(k=>k&&lower.includes(k)))return r.r(S);}
+  return RESP[RESP.length-1].r(S);
+}
+function sendMsg(){
+  const input=document.getElementById('chat-input');const txt=input.value.trim();if(!txt)return;
+  addMsg(txt,'user');input.value='';
+  const msgs=document.getElementById('chat-msgs');
+  const t=document.createElement('div');t.className='msg msg-ai thinking';t.id='thinking';t.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';msgs.appendChild(t);msgs.scrollTop=msgs.scrollHeight;
+  setTimeout(()=>{const el=document.getElementById('thinking');if(el)el.remove();addMsg(getAIResponse(txt),'ai');},900);
+}
+function quickQ(q){showSection('coach',document.querySelectorAll('.nav-item')[4]);document.querySelectorAll('.nav-item')[4].classList.add('active');setTimeout(()=>{document.getElementById('chat-input').value=q;sendMsg();},100);}
+function addMsg(text,type){const msgs=document.getElementById('chat-msgs');const d=document.createElement('div');d.className='msg msg-'+type;d.textContent=text;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;}
+
+load();
+if(S.calculado)renderDashboard();
+simular();
+</script>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js");}</script>
+</body>
+</html>
