@@ -1,6 +1,6 @@
 {
-  "name": "WealthOS",
-  "short_name": "WealthOS",
+  "name": "Mediahorro",
+  "short_name": "Mediahorro",
   "description": "Tu copiloto financiero personal",
   "start_url": "./index.html",
   "scope": "./",
