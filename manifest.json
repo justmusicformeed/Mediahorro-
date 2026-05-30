@@ -1,7 +1,7 @@
 {
-  "name": "Mediahorro",
-  "short_name": "Mediahorro",
-  "description": "Tu copiloto financiero personal",
+  "name": "Medinero",
+  "short_name": "Medinero",
+  "description": "Tu coach de ahorro inteligente",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -10,17 +10,7 @@
   "orientation": "portrait",
   "lang": "es",
   "icons": [
-    {
-      "src": "./icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "./icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
-    }
+    {"src": "./icon.svg","sizes": "any","type": "image/svg+xml","purpose": "any"},
+    {"src": "./icon.svg","sizes": "any","type": "image/svg+xml","purpose": "maskable"}
   ]
 }
